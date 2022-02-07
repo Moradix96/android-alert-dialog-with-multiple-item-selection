@@ -1,8 +1,14 @@
 package ir.samiantec.androidalertdialogwithmultipleitemselection;
 
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -10,5 +16,69 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // UI widgets button and
+        final Button bOpenAlertDialog = findViewById(R.id.openAlertDialogButton);
+        final TextView tvSelectedItemsPreview = findViewById(R.id.selectedItemPreview);
+
+        // initialise the list items for the alert dialog
+        final String[] listItems = new String[]{"C", "C++", "JAVA", "PYTHON"};
+        final boolean[] checkedItems = new boolean[listItems.length];
+
+        // copy the items from the main list to the selected item list
+        // for the preview if the item is checked then only the item
+        // should be displayed for the user
+        final List<String> selectedItems = Arrays.asList(listItems);
+
+        // handle the Open Alert Dialog button
+        bOpenAlertDialog.setOnClickListener(v -> {
+
+            // initially set the null for the text preview
+            tvSelectedItemsPreview.setText(null);
+
+            // initialise the alert dialog builder
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+            // set the title for the alert dialog
+            builder.setTitle("Choose Items");
+
+            // set the icon for the alert dialog
+            builder.setIcon(R.mipmap.ic_launcher);
+
+            // now this is the function which sets the alert dialog for multiple item selection ready
+            builder.setMultiChoiceItems(listItems, checkedItems, (dialog, which, isChecked) -> {
+                checkedItems[which] = isChecked;
+                final String currentItem = selectedItems.get(which);
+            });
+
+            // alert dialog shouldn't be cancellable
+            builder.setCancelable(false);
+
+            // handle the positive button of the dialog
+            builder.setPositiveButton("Done", (dialog, which) -> {
+                for (int i = 0; i < checkedItems.length; i++) {
+                    if (checkedItems[i]) {
+                        tvSelectedItemsPreview.setText(tvSelectedItemsPreview.getText() + selectedItems.get(i) + ", ");
+                    }
+                }
+            });
+
+            // handle the negative button of the alert dialog
+            builder.setNegativeButton("CANCEL", (dialog, which) -> {
+                // Do Nothing
+            });
+
+            // handle the neutral button of the dialog to clear
+            // the selected items boolean checkedItem
+            builder.setNeutralButton("CLEAR ALL", (dialog, which) -> Arrays.fill(checkedItems, false));
+
+            // create the builder
+            builder.create();
+
+            // create the alert dialog with the
+            // alert dialog builder instance
+            final AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        });
     }
 }
